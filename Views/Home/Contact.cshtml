@@ -1,0 +1,638 @@
+﻿@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<!-- Hero Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="hero-section bg-primary text-white rounded p-5 text-center">
+            <div class="container">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="fas fa-envelope me-3"></i>
+                    Contact Us
+                </h1>
+                <p class="lead mb-4">
+                    We're here to help! Get in touch with our team for any questions, support, or book recommendations.
+                </p>
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="contact-quick-info d-flex justify-content-around text-center">
+                            <div class="quick-info-item">
+                                <i class="fas fa-phone fa-2x mb-2"></i>
+                                <p class="mb-0">+1 (555) 123-4567</p>
+                            </div>
+                            <div class="quick-info-item">
+                                <i class="fas fa-envelope fa-2x mb-2"></i>
+                                <p class="mb-0">support@bookstore.com</p>
+                            </div>
+                            <div class="quick-info-item">
+                                <i class="fas fa-clock fa-2x mb-2"></i>
+                                <p class="mb-0">Mon-Fri 9AM-6PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column - Contact Form -->
+    <div class="col-lg-8 mb-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light py-4">
+                <h3 class="card-title mb-0 text-primary">
+                    <i class="fas fa-paper-plane me-2"></i>
+                    Send Us a Message
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <form id="contactForm" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="firstName" class="form-label fw-bold">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                                <div class="invalid-feedback">
+                                    Please provide your first name.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="lastName" class="form-label fw-bold">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                                <div class="invalid-feedback">
+                                    Please provide your last name.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="email" class="form-label fw-bold">
+                                    Email Address <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                                <div class="invalid-feedback">
+                                    Please provide a valid email address.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label for="phone" class="form-label fw-bold">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone">
+                                <div class="form-text">Optional - for urgent inquiries</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="inquiryType" class="form-label fw-bold">
+                            Inquiry Type <span class="text-danger">*</span>
+                        </label>
+                        <select class="form-select" id="inquiryType" name="inquiryType" required>
+                            <option value="">Select inquiry type...</option>
+                            <option value="General">General Question</option>
+                            <option value="Order">Order Inquiry</option>
+                            <option value="Book Recommendation">Book Recommendation</option>
+                            <option value="Technical Support">Technical Support</option>
+                            <option value="Return/Exchange">Return/Exchange</option>
+                            <option value="Bulk Purchase">Bulk Purchase</option>
+                            <option value="Partnership">Partnership Opportunity</option>
+                            <option value="Feedback">Feedback/Suggestion</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select an inquiry type.
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3" id="orderNumberGroup" style="display: none;">
+                        <label for="orderNumber" class="form-label fw-bold">Order Number</label>
+                        <input type="text" class="form-control" id="orderNumber" name="orderNumber" placeholder="e.g., #ORD-123456">
+                        <div class="form-text">Please provide your order number for faster assistance</div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="subject" class="form-label fw-bold">
+                            Subject <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                        <div class="invalid-feedback">
+                            Please provide a subject for your message.
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <label for="message" class="form-label fw-bold">
+                            Message <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="message" name="message" rows="6" required 
+                                  placeholder="Please provide details about your inquiry..."></textarea>
+                        <div class="invalid-feedback">
+                            Please provide your message.
+                        </div>
+                        <div class="form-text">
+                            <span id="messageCount">0</span> characters (minimum 10 characters)
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="newsletter" name="newsletter">
+                            <label class="form-check-label" for="newsletter">
+                                <i class="fas fa-newspaper me-1"></i>
+                                Subscribe to our newsletter for book recommendations and special offers
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="reset" class="btn btn-outline-secondary me-md-2">
+                            <i class="fas fa-undo me-1"></i> Reset Form
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i> Send Message
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column - Contact Information -->
+    <div class="col-lg-4">
+        <!-- Contact Details -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-map-marker-alt me-2"></i>
+                    Contact Information
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="contact-method mb-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-map-marker-alt fa-lg text-primary me-3"></i>
+                        <h6 class="mb-0">Visit Our Store</h6>
+                    </div>
+                    <p class="text-muted mb-0 ms-4">
+                        123 Book Street<br>
+                        Reading City, RC 12345<br>
+                        United States
+                    </p>
+                </div>
+                
+                <div class="contact-method mb-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-phone fa-lg text-success me-3"></i>
+                        <h6 class="mb-0">Call Us</h6>
+                    </div>
+                    <p class="text-muted mb-1 ms-4">
+                        <strong>Main:</strong> +1 (555) 123-4567<br>
+                        <strong>Orders:</strong> +1 (555) 123-4568<br>
+                        <strong>Support:</strong> +1 (555) 123-4569
+                    </p>
+                </div>
+                
+                <div class="contact-method mb-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-envelope fa-lg text-info me-3"></i>
+                        <h6 class="mb-0">Email Us</h6>
+                    </div>
+                    <p class="text-muted mb-0 ms-4">
+                        <strong>General:</strong> info@bookstore.com<br>
+                        <strong>Support:</strong> support@bookstore.com<br>
+                        <strong>Orders:</strong> orders@bookstore.com
+                    </p>
+                </div>
+                
+                <div class="contact-method">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-clock fa-lg text-warning me-3"></i>
+                        <h6 class="mb-0">Business Hours</h6>
+                    </div>
+                    <p class="text-muted mb-0 ms-4">
+                        <strong>Mon-Fri:</strong> 9:00 AM - 6:00 PM<br>
+                        <strong>Saturday:</strong> 10:00 AM - 4:00 PM<br>
+                        <strong>Sunday:</strong> Closed
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Response Time -->
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-reply me-2"></i>
+                    Response Times
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="response-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-envelope me-2 text-primary"></i>Email</span>
+                        <span class="badge bg-primary">24 hours</span>
+                    </div>
+                </div>
+                <div class="response-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-phone me-2 text-success"></i>Phone</span>
+                        <span class="badge bg-success">Immediate</span>
+                    </div>
+                </div>
+                <div class="response-item mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-life-ring me-2 text-warning"></i>Support</span>
+                        <span class="badge bg-warning">2-4 hours</span>
+                    </div>
+                </div>
+                <div class="response-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-shipping-fast me-2 text-info"></i>Orders</span>
+                        <span class="badge bg-info">1 hour</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Social Media -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-share-alt me-2"></i>
+                    Follow Us
+                </h5>
+            </div>
+            <div class="card-body p-4 text-center">
+                <p class="text-muted mb-3">Stay connected for updates and book recommendations</p>
+                <div class="social-links">
+                    <a href="#" class="btn btn-outline-primary me-2 mb-2" title="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-info me-2 mb-2" title="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-danger me-2 mb-2" title="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-success me-2 mb-2" title="WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-dark me-2 mb-2" title="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary mb-2" title="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<div class="row mt-5 mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-warning text-dark text-center py-4">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Frequently Asked Questions
+                </h3>
+            </div>
+            <div class="card-body p-5">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="accordion" id="faqAccordion1">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq1">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                        How can I track my order?
+                                    </button>
+                                </h2>
+                                <div id="collapse1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion1">
+                                    <div class="accordion-body">
+                                        Once your order is shipped, you'll receive an email with tracking information. You can also check your order status by logging into your account and visiting the "My Orders" section.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq2">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                        What is your return policy?
+                                    </button>
+                                </h2>
+                                <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion1">
+                                    <div class="accordion-body">
+                                        We offer a 30-day return policy for books in original condition. Returns are free for defective items, and we provide prepaid return labels for your convenience.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq3">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                        Do you offer international shipping?
+                                    </button>
+                                </h2>
+                                <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion1">
+                                    <div class="accordion-body">
+                                        Yes, we ship to over 50 countries worldwide. International shipping rates and delivery times vary by destination. You can check shipping options during checkout.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="accordion" id="faqAccordion2">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq4">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse4">
+                                        How do I get book recommendations?
+                                    </button>
+                                </h2>
+                                <div id="collapse4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion2">
+                                    <div class="accordion-body">
+                                        Our team of book experts is happy to provide personalized recommendations. Contact us with your preferences, or use our recommendation engine on the website for instant suggestions.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq5">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse5">
+                                        Do you offer bulk discounts?
+                                    </button>
+                                </h2>
+                                <div id="collapse5" class="accordion-collapse collapse" data-bs-parent="#faqAccordion2">
+                                    <div class="accordion-body">
+                                        Yes, we offer special pricing for bulk purchases, educational institutions, and corporate orders. Contact our sales team for a custom quote on orders of 50+ books.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq6">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse6">
+                                        How secure is my payment information?
+                                    </button>
+                                </h2>
+                                <div id="collapse6" class="accordion-collapse collapse" data-bs-parent="#faqAccordion2">
+                                    <div class="accordion-body">
+                                        We use industry-standard SSL encryption and secure payment processors. Your payment information is never stored on our servers and is processed through trusted, PCI-compliant payment gateways.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-check-circle me-2"></i>Message Sent Successfully!
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Thank you for contacting us! We've received your message and will get back to you soon.</p>
+                <div class="alert alert-info mb-0">
+                    <strong>What happens next?</strong><br>
+                    Our team will review your inquiry and respond within our standard timeframes. For urgent matters, please call us directly.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Got it!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Character counter for message
+            $('#message').on('input', function() {
+                const length = $(this).val().length;
+                $('#messageCount').text(length);
+                
+                if (length < 10) {
+                    $('#messageCount').removeClass('text-success').addClass('text-muted');
+                } else {
+                    $('#messageCount').removeClass('text-muted').addClass('text-success');
+                }
+            });
+            
+            // Show/hide order number field based on inquiry type
+            $('#inquiryType').on('change', function() {
+                const inquiryType = $(this).val();
+                if (inquiryType === 'Order' || inquiryType === 'Return/Exchange') {
+                    $('#orderNumberGroup').show();
+                    $('#orderNumber').attr('required', true);
+                } else {
+                    $('#orderNumberGroup').hide();
+                    $('#orderNumber').removeAttr('required').val('');
+                }
+            });
+            
+            // Form submission
+            $('#contactForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                if (this.checkValidity()) {
+                    // Simulate form submission
+                    const submitButton = $(this).find('button[type="submit"]');
+                    const originalText = submitButton.html();
+                    
+                    // Show loading state
+                    submitButton.prop('disabled', true)
+                             .html('<i class="fas fa-spinner fa-spin me-2"></i>Sending...');
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        // Reset button
+                        submitButton.prop('disabled', false).html(originalText);
+                        
+                        // Show success modal
+                        new bootstrap.Modal(document.getElementById('successModal')).show();
+                        
+                        // Reset form
+                        this.reset();
+                        $(this).removeClass('was-validated');
+                        $('#messageCount').text('0').removeClass('text-success').addClass('text-muted');
+                        $('#orderNumberGroup').hide();
+                    }, 2000);
+                }
+                
+                $(this).addClass('was-validated');
+            });
+            
+            // Reset form button
+            $('#contactForm button[type="reset"]').on('click', function() {
+                $('#contactForm').removeClass('was-validated');
+                $('#messageCount').text('0').removeClass('text-success').addClass('text-muted');
+                $('#orderNumberGroup').hide();
+            });
+            
+            // Phone number formatting
+            $('#phone').on('input', function() {
+                let value = $(this).val().replace(/\D/g, '');
+                if (value.length >= 6) {
+                    value = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+                } else if (value.length >= 3) {
+                    value = value.replace(/(\d{3})(\d{0,3})/, '($1) $2');
+                }
+                $(this).val(value);
+            });
+            
+            // Social links hover effects
+            $('.social-links a').hover(
+                function() {
+                    $(this).addClass('shadow-sm').css('transform', 'scale(1.1)');
+                },
+                function() {
+                    $(this).removeClass('shadow-sm').css('transform', 'scale(1)');
+                }
+            );
+        });
+    </script>
+    
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border-radius: 1rem !important;
+        }
+        
+        .quick-info-item {
+            padding: 1rem;
+        }
+        
+        .contact-method {
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .contact-method:hover {
+            background-color: #f8f9fa;
+            transform: translateX(5px);
+        }
+        
+        .response-item {
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        
+        .response-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .social-links a {
+            transition: all 0.3s ease;
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .accordion-button:not(.collapsed) {
+            color: #0c63e4;
+            background-color: #e7f1ff;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .was-validated .form-control:valid,
+        .was-validated .form-select:valid {
+            border-color: #198754;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.94-.94 1.94 1.94 4-4.04L9.24 3.5 5.24 7.5z'/%3e%3c/svg%3e");
+        }
+        
+        .was-validated .form-control:invalid,
+        .was-validated .form-select:invalid {
+            border-color: #dc3545;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 4.6 2.4 2.4m0-2.4L5.8 7'/%3e%3c/svg%3e");
+        }
+        
+        @@media (max-width: 768px) {
+            .hero-section {
+                padding: 2rem !important;
+            }
+            
+            .contact-quick-info {
+                flex-direction: column;
+            }
+            
+            .quick-info-item {
+                margin-bottom: 1rem;
+            }
+            
+            .quick-info-item:last-child {
+                margin-bottom: 0;
+            }
+            
+            .contact-method:hover {
+                transform: none;
+            }
+        }
+        
+        .card-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            font-weight: 600;
+        }
+        
+        .form-text {
+            font-size: 0.875em;
+            color: #6c757d;
+        }
+        
+        .invalid-feedback {
+            font-size: 0.875em;
+        }
+        
+        .badge {
+            font-size: 0.75em;
+        }
+    </style>
+}

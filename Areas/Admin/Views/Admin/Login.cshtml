@@ -1,0 +1,482 @@
+﻿@model BookStoreEcommerce.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Admin Login";
+    Layout = null; // Use no layout for clean login page
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - BookStore Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            overflow: hidden;
+            max-width: 900px;
+            width: 100%;
+            margin: 20px;
+        }
+        
+        .login-left {
+            background: linear-gradient(45deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 500px;
+        }
+        
+        .login-right {
+            padding: 60px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 500px;
+        }
+        
+        .admin-logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .admin-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 15px;
+        }
+        
+        .admin-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+        
+        .form-floating {
+            margin-bottom: 20px;
+        }
+        
+        .form-floating > .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px 15px 10px;
+            height: auto;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating > .form-control:focus {
+            border-color: #3498db;
+            background: white;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .form-floating > label {
+            color: #6c757d;
+            padding: 15px;
+        }
+        
+        .btn-admin-login {
+            background: linear-gradient(45deg, #3498db 0%, #2c3e50 100%);
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        
+        .btn-admin-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+            color: white;
+        }
+        
+        .alert-custom {
+            border: none;
+            border-radius: 10px;
+            padding: 15px 20px;
+        }
+        
+        .back-to-site {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-site:hover {
+            color: white;
+            transform: translateX(-5px);
+        }
+        
+        .security-badge {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            display: inline-block;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+        }
+        
+        .floating-shapes::before,
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-shapes::before {
+            width: 100px;
+            height: 100px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-shapes::after {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+        
+        @@keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @@media (max-width: 768px) {
+            .login-left {
+                display: none;
+            }
+            
+            .login-container {
+                border-radius: 15px;
+                margin: 10px;
+            }
+            
+            .login-right {
+                padding: 40px 30px;
+            }
+        }
+        
+        .form-check-input:checked {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+        
+        .text-danger {
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .login-header h2 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #6c757d;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <a href="@Url.Action("Index", "Home", new { area = "" })" class="back-to-site">
+        <i class="fas fa-arrow-left"></i> Back to Main Site
+    </a>
+    
+    <div class="login-container">
+        <div class="row g-0 h-100">
+            <!-- Left Panel -->
+            <div class="col-lg-6 login-left">
+                <div class="floating-shapes"></div>
+                <div class="position-relative">
+                    <div class="admin-logo">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h1 class="admin-title">Admin Portal</h1>
+                    <p class="admin-subtitle">
+                        Secure access to your BookStore administration panel.
+                        Manage books, customers, orders, and view comprehensive analytics.
+                    </p>
+                    <div class="security-badge">
+                        <i class="fas fa-lock"></i> Secured by Enterprise-Grade Encryption
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Panel -->
+            <div class="col-lg-6 login-right">
+                <div class="login-header">
+                    <h2>Welcome Back</h2>
+                    <p>Please sign in to your admin account</p>
+                </div>
+                
+                <form asp-action="Login" method="post" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger alert-custom d-none"></div>
+                    
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState.ErrorCount > 0)
+                    {
+                        <div class="alert alert-danger alert-custom">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            Please check your credentials and try again.
+                        </div>
+                    }
+                    
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-custom">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            @TempData["Error"]
+                        </div>
+                    }
+                    
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-custom">
+                            <i class="fas fa-check-circle me-2"></i>
+                            @TempData["Success"]
+                        </div>
+                    }
+                    
+                    <div class="form-floating">
+                        <input asp-for="Email" 
+                               class="form-control" 
+                               id="floatingEmail" 
+                               placeholder="admin@bookstore.com"
+                               autocomplete="username"
+                               required />
+                        <label for="floatingEmail">
+                            <i class="fas fa-envelope me-2"></i>Email Address
+                        </label>
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-floating">
+                        <input asp-for="Password" 
+                               class="form-control" 
+                               id="floatingPassword" 
+                               placeholder="Password"
+                               autocomplete="current-password"
+                               required />
+                        <label for="floatingPassword">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-check mb-4">
+                        <input asp-for="RememberMe" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">
+                            Keep me signed in for 30 days
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-admin-login w-100 mb-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>
+                        Sign In to Admin Panel
+                    </button>
+                    
+                    <div class="text-center">
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Having trouble? Contact your system administrator.
+                        </small>
+                    </div>
+                </form>
+                
+                <!-- Demo Credentials (Remove in production) -->
+                <div class="mt-4 p-3" style="background: #f8f9fa; border-radius: 10px; border-left: 4px solid #17a2b8;">
+                    <h6 class="text-info mb-2">
+                        <i class="fas fa-key me-2"></i>Demo Credentials
+                    </h6>
+                    <small class="text-muted">
+                        Email: <code>admin@bookstore.com</code><br>
+                        Password: <code>admin123</code>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Enhanced form validation and UX
+        $(document).ready(function() {
+            // Focus on first input
+            $('#floatingEmail').focus();
+            
+            // Real-time validation feedback
+            $('input[required]').on('blur', function() {
+                validateField($(this));
+            });
+            
+            // Form submission handling
+            $('form').on('submit', function(e) {
+                let isValid = true;
+                $('input[required]').each(function() {
+                    if (!validateField($(this))) {
+                        isValid = false;
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    showAlert('Please correct the errors below.', 'danger');
+                }
+            });
+            
+            // Password visibility toggle (optional enhancement)
+            const passwordField = $('#floatingPassword');
+            const toggleButton = $('<button type="button" class="btn btn-outline-secondary position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%); z-index: 10; border: none; background: none;"><i class="fas fa-eye"></i></button>');
+            
+            passwordField.parent().css('position', 'relative');
+            passwordField.after(toggleButton);
+            
+            toggleButton.on('click', function() {
+                const type = passwordField.attr('type') === 'password' ? 'text' : 'password';
+                passwordField.attr('type', type);
+                $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+            });
+            
+            // Auto-fill demo credentials on double-click (for development)
+            $('.login-header').on('dblclick', function() {
+                $('#floatingEmail').val('admin@bookstore.com');
+                $('#floatingPassword').val('admin123');
+            });
+        });
+        
+        function validateField(field) {
+            const value = field.val().trim();
+            const fieldName = field.attr('name');
+            let isValid = true;
+            let message = '';
+            
+            // Remove existing validation styling
+            field.removeClass('is-valid is-invalid');
+            field.siblings('.text-danger').remove();
+            
+            // Required field validation
+            if (field.prop('required') && !value) {
+                isValid = false;
+                message = 'This field is required.';
+            }
+            
+            // Email validation
+            if (fieldName === 'Email' && value) {
+                const emailRegex = /^[^\s]+[^\s]+\.[^\s]+$/;
+                if (!emailRegex.test(value)) {
+                    isValid = false;
+                    message = 'Please enter a valid email address.';
+                }
+            }
+            
+            // Password validation
+            if (fieldName === 'Password' && value && value.length < 6) {
+                isValid = false;
+                message = 'Password must be at least 6 characters long.';
+            }
+            
+            // Apply validation styling and message
+            if (isValid) {
+                field.addClass('is-valid');
+            } else {
+                field.addClass('is-invalid');
+                field.after(`<span class="text-danger">${message}</span>`);
+            }
+            
+            return isValid;
+        }
+        
+        function showAlert(message, type = 'info') {
+            const alertClass = `alert-${type}`;
+            const iconClass = type === 'danger' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            const alert = $(`
+                <div class="alert ${alertClass} alert-custom alert-dismissible fade show" role="alert">
+                    <i class="fas ${iconClass} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            
+            $('.login-header').after(alert);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alert.alert('close');
+            }, 5000);
+        }
+        
+        // Keyboard shortcuts
+        $(document).on('keydown', function(e) {
+            // Ctrl + Enter to submit form
+            if (e.ctrlKey && e.which === 13) {
+                $('form').submit();
+            }
+        });
+        
+        // Add loading state to button on form submission
+        $('form').on('submit', function() {
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.html();
+            
+            submitBtn.prop('disabled', true)
+                     .html('<i class="fas fa-spinner fa-spin me-2"></i>Signing In...');
+            
+            // Re-enable button after 3 seconds (in case of validation errors)
+            setTimeout(() => {
+                submitBtn.prop('disabled', false).html(originalText);
+            }, 3000);
+        });
+    </script>
+</body>
+</html>

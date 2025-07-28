@@ -1,0 +1,333 @@
+﻿@{
+    ViewData["Title"] = "Admin Panel";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-tachometer-alt me-2"></i>
+        Admin Panel
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-calendar-alt"></i> Today: @DateTime.Now.ToString("MMM dd, yyyy")
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-primary" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-info-circle fa-2x me-3"></i>
+                <div>
+                    <h4 class="alert-heading mb-1">Welcome to BookStore Admin Panel!</h4>
+                    <p class="mb-0">Manage your online bookstore efficiently with our comprehensive administration tools.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="mb-3">
+            <i class="fas fa-bolt me-2"></i>
+            Quick Actions
+        </h3>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-book fa-3x text-primary"></i>
+                </div>
+                <h5 class="card-title">Manage Books</h5>
+                <p class="card-text">Add, edit, or remove books from your inventory.</p>
+                <a asp-area="Admin" asp-controller="BookManagement" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-cogs me-1"></i> Manage Books
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-users fa-3x text-success"></i>
+                </div>
+                <h5 class="card-title">Customer Management</h5>
+                <p class="card-text">View and manage customer accounts and profiles.</p>
+                <a asp-area="Admin" asp-controller="CustomerManagement" asp-action="Index" class="btn btn-success">
+                    <i class="fas fa-user-cog me-1"></i> Manage Customers
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-shopping-cart fa-3x text-info"></i>
+                </div>
+                <h5 class="card-title">Order Management</h5>
+                <p class="card-text">Process orders and update order statuses.</p>
+                <a asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" class="btn btn-info">
+                    <i class="fas fa-clipboard-list me-1"></i> Manage Orders
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-chart-bar fa-3x text-warning"></i>
+                </div>
+                <h5 class="card-title">Dashboard</h5>
+                <p class="card-text">View analytics and business insights.</p>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-warning">
+                    <i class="fas fa-analytics me-1"></i> View Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Overview -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h3 class="mb-3">
+            <i class="fas fa-cog me-2"></i>
+            System Overview
+        </h3>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-tasks me-2"></i>
+                    Administrative Tasks
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a asp-area="Admin" asp-controller="BookManagement" asp-action="Create" 
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-plus-circle me-2 text-primary"></i>Add New Book</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    <a asp-area="Admin" asp-controller="OrderManagement" asp-action="Index" 
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-clock me-2 text-warning"></i>Pending Orders</span>
+                        <span class="badge bg-warning rounded-pill">New</span>
+                    </a>
+                    <a asp-area="Admin" asp-controller="CustomerManagement" asp-action="Statistics" 
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-chart-line me-2 text-info"></i>Customer Analytics</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                    <a asp-area="Admin" asp-controller="CustomerManagement" asp-action="Export" 
+                       class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-download me-2 text-success"></i>Export Customer Data</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center p-3 border rounded">
+                            <i class="fas fa-server fa-2x text-primary mb-2"></i>
+                            <h6>System Status</h6>
+                            <span class="badge bg-success">Online</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-3 border rounded">
+                            <i class="fas fa-database fa-2x text-info mb-2"></i>
+                            <h6>Database</h6>
+                            <span class="badge bg-success">Connected</span>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <small class="text-muted">Server Time</small><br>
+                        <strong>@DateTime.Now.ToString("HH:mm:ss")</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-muted">Version</small><br>
+                        <strong>v1.0.0</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Placeholder -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-history me-2"></i>
+                    Recent Activity
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center py-4">
+                    <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Activity Monitoring</h5>
+                    <p class="text-muted">Recent system activities and admin actions will appear here.</p>
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-1"></i> View Full Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Help & Support -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-question-circle me-2"></i>
+                    Need Help?
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-book-open fa-2x text-info mb-2"></i>
+                        <h6>Documentation</h6>
+                        <p class="small text-muted">Access user guides and system documentation.</p>
+                        <button class="btn btn-outline-info btn-sm" onclick="showComingSoon('Documentation')">
+                            <i class="fas fa-external-link-alt me-1"></i> View Docs
+                        </button>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-headset fa-2x text-info mb-2"></i>
+                        <h6>Support</h6>
+                        <p class="small text-muted">Get help from our technical support team.</p>
+                        <button class="btn btn-outline-info btn-sm" onclick="showComingSoon('Support')">
+                            <i class="fas fa-phone me-1"></i> Contact Support
+                        </button>
+                    </div>
+                    <div class="col-md-4 text-center mb-3">
+                        <i class="fas fa-video fa-2x text-info mb-2"></i>
+                        <h6>Training</h6>
+                        <p class="small text-muted">Watch training videos and tutorials.</p>
+                        <button class="btn btn-outline-info btn-sm" onclick="showComingSoon('Training')">
+                            <i class="fas fa-play me-1"></i> Watch Videos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add hover effects to cards
+            $('.card').hover(
+                function() {
+                    $(this).addClass('shadow-lg').css('transform', 'translateY(-2px)');
+                },
+                function() {
+                    $(this).removeClass('shadow-lg').css('transform', 'translateY(0)');
+                }
+            );
+            
+            // Add click animation to buttons
+            $('.btn').on('click', function() {
+                $(this).addClass('animate__animated animate__pulse');
+                setTimeout(() => {
+                    $(this).removeClass('animate__animated animate__pulse');
+                }, 600);
+            });
+            
+            // Update time every second
+            setInterval(function() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString();
+                $('strong:contains(":")').text(timeString);
+            }, 1000);
+        });
+        
+        function showComingSoon(feature) {
+            alert(`${feature} feature is coming soon! This will be available in a future update.`);
+        }
+        
+        // Add some interactive statistics (placeholder)
+        function loadQuickStats() {
+            // This would typically make AJAX calls to get real data
+            // For now, we'll just show placeholder functionality
+            console.log('Loading quick statistics...');
+        }
+        
+        // Initialize quick stats on page load
+        $(document).ready(function() {
+            loadQuickStats();
+        });
+    </script>
+    
+    <style>
+        .card {
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            cursor: pointer;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .badge {
+            animation: pulse 2s infinite;
+        }
+        
+        @@keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .text-center .fa-2x, .text-center .fa-3x {
+            transition: transform 0.3s ease;
+        }
+        
+        .text-center:hover .fa-2x, .text-center:hover .fa-3x {
+            transform: scale(1.1);
+        }
+    </style>
+}

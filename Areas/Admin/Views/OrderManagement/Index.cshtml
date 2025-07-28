@@ -1,0 +1,738 @@
+﻿@model IEnumerable<BookStoreEcommerce.Models.Entities.Order>
+@{
+    ViewData["Title"] = "Order Management";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-shopping-cart me-2"></i>
+        Order Management
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-plus me-1"></i> Quick Actions
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="processAllPending()">
+                    <i class="fas fa-play me-2"></i>Process All Pending
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="markAsShipped()">
+                    <i class="fas fa-shipping-fast me-2"></i>Mark Selected as Shipped
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="exportOrders('csv')">
+                    <i class="fas fa-file-csv me-2"></i>Export to CSV
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="exportOrders('excel')">
+                    <i class="fas fa-file-excel me-2"></i>Export to Excel
+                </a></li>
+            </ul>
+        </div>
+        <div class="btn-group">
+            <button type="button" class="btn btn-outline-secondary" onclick="refreshOrders()">
+                <i class="fas fa-sync-alt me-1"></i> Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count()</h4>
+                        <p class="mb-0">Total Orders</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count(o => o.OrderStatus == OrderStatus.Pending)</h4>
+                        <p class="mb-0">Pending Orders</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count(o => o.OrderStatus == OrderStatus.Processing || o.OrderStatus == OrderStatus.Shipped)</h4>
+                        <p class="mb-0">In Progress</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-truck fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count(o => o.OrderStatus == OrderStatus.Delivered)</h4>
+                        <p class="mb-0">Completed</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Revenue Statistics -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-success">
+            <div class="card-body text-center">
+                <h3 class="text-success">$@Model.Sum(o => o.TotalAmount).ToString("N2")</h3>
+                <p class="mb-0">Total Revenue</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info">$@(Model.Any() ? Model.Average(o => o.TotalAmount).ToString("F2") : "0.00")</h3>
+                <p class="mb-0">Average Order Value</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">@Model.Where(o => o.OrderDate >= DateTime.Now.AddDays(-30)).Count()</h3>
+                <p class="mb-0">Orders This Month</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="row mb-3">
+    <div class="col-md-4">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by order number or customer..." value="@ViewBag.SearchTerm">
+            <button class="btn btn-outline-primary" type="button" onclick="searchOrders()">
+                <i class="fas fa-search"></i> Search
+            </button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+            {
+                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            }
+        </div>
+    </div>
+    <div class="col-md-2">
+        <select id="statusFilter" class="form-select" onchange="filterByStatus()">
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Shipped">Shipped</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select id="paymentFilter" class="form-select" onchange="filterByPayment()">
+            <option value="">All Payments</option>
+            <option value="Pending">Payment Pending</option>
+            <option value="Paid">Paid</option>
+            <option value="Failed">Failed</option>
+            <option value="Refunded">Refunded</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <select id="dateFilter" class="form-select" onchange="filterByDate()">
+            <option value="">All Dates</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="button" class="btn btn-outline-secondary w-100" onclick="resetFilters()">
+            <i class="fas fa-undo me-1"></i> Reset
+        </button>
+    </div>
+</div>
+
+<!-- Orders Table -->
+<div class="card">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Orders List
+            </h5>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <label class="form-check-label" for="selectAll">
+                    Select All
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th width="40">
+                                <input type="checkbox" id="headerCheckbox" onchange="toggleSelectAll()">
+                            </th>
+                            <th>Order Details</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Payment</th>
+                            <th>Status</th>
+                            <th>Order Date</th>
+                            <th width="200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.OrderByDescending(o => o.OrderDate))
+                        {
+                            <tr id="order-row-@order.OrderId" class="@(order.OrderStatus == OrderStatus.Pending ? "table-warning" : order.OrderStatus == OrderStatus.Cancelled ? "table-danger" : "")">
+                                <td>
+                                    <input type="checkbox" class="order-checkbox" value="@order.OrderId">
+                                </td>
+                                <td>
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <a asp-action="Details" asp-route-id="@order.OrderId" class="text-decoration-none">
+                                                #@order.OrderNumber
+                                            </a>
+                                        </h6>
+                                        <small class="text-muted">@order.OrderDetails.Count() items</small>
+                                        @if (order.OrderDetails.Any())
+                                        {
+                                            <br><small class="text-info">@string.Join(", ", order.OrderDetails.Take(2).Select(od => od.Book.Title))</small>
+                                            @if (order.OrderDetails.Count() > 2)
+                                            {
+                                                <small class="text-muted">...</small>
+                                            }
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-sm bg-light rounded-circle me-2 d-flex align-items-center justify-content-center">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-semibold">@order.Customer.User.FullName</div>
+                                            <small class="text-muted">@order.Customer.User.Email</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>$@order.TotalAmount.ToString("F2")</strong>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(order.PaymentStatus switch {
+                                        PaymentStatus.Pending => "warning",
+                                        PaymentStatus.Paid => "success",
+                                        PaymentStatus.Failed => "danger",
+                                        PaymentStatus.Refunded => "info",
+                                        _ => "secondary"
+                                    })">
+                                        @order.PaymentStatus
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(order.PaymentMethod))
+                                    {
+                                        <br><small class="text-muted">@order.PaymentMethod</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(order.OrderStatus switch {
+                                        OrderStatus.Pending => "warning",
+                                        OrderStatus.Processing => "info",
+                                        OrderStatus.Shipped => "primary",
+                                        OrderStatus.Delivered => "success",
+                                        OrderStatus.Cancelled => "danger",
+                                        _ => "secondary"
+                                    })">
+                                        @order.OrderStatus
+                                    </span>
+                                    @if (order.ShippedDate.HasValue && order.OrderStatus == OrderStatus.Shipped)
+                                    {
+                                        <br><small class="text-muted">Shipped: @order.ShippedDate.Value.ToString("MMM dd")</small>
+                                    }
+                                    @if (order.DeliveredDate.HasValue && order.OrderStatus == OrderStatus.Delivered)
+                                    {
+                                        <br><small class="text-muted">Delivered: @order.DeliveredDate.Value.ToString("MMM dd")</small>
+                                    }
+                                </td>
+                                <td>
+                                    <small class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy")</small>
+                                    <br><small class="text-muted">@order.OrderDate.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@order.OrderId" 
+                                           class="btn btn-sm btn-outline-info" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (order.OrderStatus == OrderStatus.Pending)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-success" 
+                                                    onclick="updateOrderStatus(@order.OrderId, 'Processing')" title="Process Order">
+                                                <i class="fas fa-play"></i>
+                                            </button>
+                                        }
+                                        @if (order.OrderStatus == OrderStatus.Processing)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-primary" 
+                                                    onclick="updateOrderStatus(@order.OrderId, 'Shipped')" title="Mark as Shipped">
+                                                <i class="fas fa-shipping-fast"></i>
+                                            </button>
+                                        }
+                                        @if (order.OrderStatus == OrderStatus.Shipped)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-success" 
+                                                    onclick="updateOrderStatus(@order.OrderId, 'Delivered')" title="Mark as Delivered">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                        @if (order.OrderStatus == OrderStatus.Pending || order.OrderStatus == OrderStatus.Processing)
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="cancelOrder(@order.OrderId)" title="Cancel Order">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        }
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                                <i class="fas fa-ellipsis-v"></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li><a class="dropdown-item" href="#" onclick="printInvoice(@order.OrderId)">
+                                                    <i class="fas fa-print me-2"></i>Print Invoice
+                                                </a></li>
+                                                <li><a class="dropdown-item" href="#" onclick="sendTrackingEmail(@order.OrderId)">
+                                                    <i class="fas fa-envelope me-2"></i>Send Tracking
+                                                </a></li>
+                                                <li><hr class="dropdown-divider"></li>
+                                                <li><a class="dropdown-item" asp-controller="CustomerManagement" asp-action="Details" asp-route-id="@order.Customer.UserId">
+                                                    <i class="fas fa-user me-2"></i>View Customer
+                                                </a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                <h4>No orders found</h4>
+                <p class="text-muted">
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+                    {
+                        <text>No orders match your search criteria. Try adjusting your search terms.</text>
+                    }
+                    else
+                    {
+                        <text>No orders have been placed yet.</text>
+                    }
+                </p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Bulk Actions Panel (Hidden by default) -->
+<div id="bulkActionsPanel" class="card mt-3" style="display: none;">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0">
+            <i class="fas fa-tasks me-2"></i>Bulk Actions
+            <button type="button" class="btn-close float-end" onclick="hideBulkActions()"></button>
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p>Selected <span id="selectedCount">0</span> orders</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-info" onclick="bulkUpdateStatus('Processing')">
+                        <i class="fas fa-play me-1"></i> Process
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" onclick="bulkUpdateStatus('Shipped')">
+                        <i class="fas fa-shipping-fast me-1"></i> Ship
+                    </button>
+                    <button type="button" class="btn btn-outline-success" onclick="bulkUpdateStatus('Delivered')">
+                        <i class="fas fa-check me-1"></i> Deliver
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="bulkUpdateStatus('Cancelled')">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="btn-group w-100" role="group">
+                    <button type="button" class="btn btn-outline-secondary" onclick="bulkExport()">
+                        <i class="fas fa-download me-1"></i> Export Selected
+                    </button>
+                    <button type="button" class="btn btn-outline-info" onclick="bulkPrintInvoices()">
+                        <i class="fas fa-print me-1"></i> Print Invoices
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="statusUpdateForm">
+                    <input type="hidden" id="updateOrderId">
+                    <div class="mb-3">
+                        <label class="form-label">Order Number</label>
+                        <input type="text" id="updateOrderNumber" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label">New Status</label>
+                        <select id="newStatus" class="form-select" required>
+                            <option value="">Select Status</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusNotes" class="form-label">Notes (Optional)</label>
+                        <textarea id="statusNotes" class="form-control" rows="2" 
+                                  placeholder="Enter any notes about this status update..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveStatusUpdate()">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let selectedOrders = [];
+        
+        $(document).ready(function() {
+            // Add change event listeners to checkboxes
+            $(document).on('change', '.order-checkbox', updateSelectedOrders);
+            
+            // Enable search on Enter key
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) {
+                    searchOrders();
+                }
+            });
+            
+            // Highlight rows on hover
+            $('tbody tr').hover(
+                function() {
+                    $(this).addClass('table-active');
+                },
+                function() {
+                    $(this).removeClass('table-active');
+                }
+            );
+        });
+        
+        // Search and filter functions
+        function searchOrders() {
+            const searchTerm = document.getElementById('searchInput').value;
+            window.location.href = `@Url.Action("Index")?search=${encodeURIComponent(searchTerm)}`;
+        }
+        
+        function clearSearch() {
+            window.location.href = '@Url.Action("Index")';
+        }
+        
+        function filterByStatus() {
+            const status = document.getElementById('statusFilter').value;
+            applyFilters({ status: status });
+        }
+        
+        function filterByPayment() {
+            const payment = document.getElementById('paymentFilter').value;
+            applyFilters({ payment: payment });
+        }
+        
+        function filterByDate() {
+            const date = document.getElementById('dateFilter').value;
+            applyFilters({ date: date });
+        }
+        
+        function applyFilters(filters) {
+            const currentSearch = document.getElementById('searchInput').value;
+            let url = '@Url.Action("Index")';
+            let params = [];
+            
+            if (currentSearch) params.push(`search=${encodeURIComponent(currentSearch)}`);
+            if (filters.status) params.push(`status=${filters.status}`);
+            if (filters.payment) params.push(`payment=${filters.payment}`);
+            if (filters.date) params.push(`date=${filters.date}`);
+            
+            if (params.length > 0) url += '?' + params.join('&');
+            window.location.href = url;
+        }
+        
+        function resetFilters() {
+            window.location.href = '@Url.Action("Index")';
+        }
+        
+        // Selection functions
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll') || document.getElementById('headerCheckbox');
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            
+            updateSelectedOrders();
+        }
+        
+        function updateSelectedOrders() {
+            selectedOrders = Array.from(document.querySelectorAll('.order-checkbox:checked'))
+                .map(cb => cb.value);
+            
+            document.getElementById('selectedCount').textContent = selectedOrders.length;
+            
+            if (selectedOrders.length > 0) {
+                showBulkActions();
+            } else {
+                hideBulkActions();
+            }
+        }
+        
+        function showBulkActions() {
+            document.getElementById('bulkActionsPanel').style.display = 'block';
+        }
+        
+        function hideBulkActions() {
+            document.getElementById('bulkActionsPanel').style.display = 'none';
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            selectedOrders = [];
+        }
+        
+        // Order status management
+        function updateOrderStatus(orderId, status) {
+            if (confirm(`Update order status to ${status}?`)) {
+                $.post('@Url.Action("UpdateStatus")', { 
+                    orderId: orderId, 
+                    status: status 
+                }, function(data) {
+                    if (data.success) {
+                        showAlert('Order status updated successfully!', 'success');
+                        location.reload();
+                    } else {
+                        showAlert('Error: ' + data.message, 'danger');
+                    }
+                }).fail(function() {
+                    showAlert('An error occurred while updating order status.', 'danger');
+                });
+            }
+        }
+        
+        function cancelOrder(orderId) {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                updateOrderStatus(orderId, 'Cancelled');
+            }
+        }
+        
+        // Bulk actions
+        function bulkUpdateStatus(status) {
+            if (selectedOrders.length === 0) return;
+            
+            if (confirm(`Update ${selectedOrders.length} selected orders to ${status}?`)) {
+                $.post('@Url.Action("BulkUpdateStatus")', { 
+                    orderIds: selectedOrders, 
+                    status: status 
+                }, function(data) {
+                    if (data.success) {
+                        showAlert(`${selectedOrders.length} orders updated successfully!`, 'success');
+                        location.reload();
+                    } else {
+                        showAlert('Error: ' + data.message, 'danger');
+                    }
+                }).fail(function() {
+                    showAlert('An error occurred during bulk update.', 'danger');
+                });
+            }
+        }
+        
+        function bulkExport() {
+            if (selectedOrders.length === 0) return;
+            showComingSoon('Bulk Export');
+        }
+        
+        function bulkPrintInvoices() {
+            if (selectedOrders.length === 0) return;
+            showComingSoon('Bulk Print Invoices');
+        }
+        
+        // Additional functions
+        function printInvoice(orderId) {
+            showComingSoon('Print Invoice');
+        }
+        
+        function sendTrackingEmail(orderId) {
+            showComingSoon('Send Tracking Email');
+        }
+        
+        function exportOrders(format) {
+            window.location.href = `@Url.Action("Export")?format=${format}`;
+        }
+        
+        function refreshOrders() {
+            location.reload();
+        }
+        
+        function processAllPending() {
+            if (confirm('Process all pending orders?')) {
+                $.post('@Url.Action("ProcessAllPending")', function(data) {
+                    if (data.success) {
+                        showAlert('All pending orders processed successfully!', 'success');
+                        location.reload();
+                    } else {
+                        showAlert('Error: ' + data.message, 'danger');
+                    }
+                }).fail(function() {
+                    showAlert('An error occurred while processing orders.', 'danger');
+                });
+            }
+        }
+        
+        function markAsShipped() {
+            if (selectedOrders.length === 0) {
+                showAlert('Please select orders to mark as shipped.', 'warning');
+                return;
+            }
+            bulkUpdateStatus('Shipped');
+        }
+        
+        function showComingSoon(feature) {
+            showAlert(`${feature} feature coming soon!`, 'info');
+        }
+        
+        // Alert helper function
+        function showAlert(message, type = 'info') {
+            const alertClass = `alert-${type}`;
+            const iconClass = type === 'danger' ? 'fa-exclamation-triangle' : 
+                             type === 'success' ? 'fa-check-circle' : 
+                             type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            const alert = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    <i class="fas ${iconClass} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            
+            $('.border-bottom').after(alert);
+            setTimeout(() => alert.alert('close'), 5000);
+        }
+    </script>
+    
+    <style>
+        .avatar-sm {
+            width: 32px;
+            height: 32px;
+            font-size: 0.875rem;
+        }
+        
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+        }
+        
+        .btn-group .btn {
+            border-radius: 0;
+        }
+        
+        .btn-group .btn:first-child {
+            border-top-left-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+        
+        .btn-group .btn:last-child {
+            border-top-right-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.075);
+        }
+        
+        .badge {
+            font-size: 0.75em;
+        }
+        
+        .fw-semibold {
+            font-weight: 600;
+        }
+        
+        .text-decoration-none:hover {
+            text-decoration: underline !important;
+        }
+        
+        .border-success {
+            border-color: #198754 !important;
+        }
+        
+        .border-info {
+            border-color: #0dcaf0 !important;
+        }
+        
+        .border-warning {
+            border-color: #ffc107 !important;
+        }
+    </style>
+}

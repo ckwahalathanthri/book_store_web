@@ -1,0 +1,573 @@
+﻿@model IEnumerable<BookStoreEcommerce.Models.Entities.Book>
+@{
+    ViewData["Title"] = "Book Management";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-book me-2"></i>
+        Book Management
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Add New Book
+            </a>
+            <button type="button" class="btn btn-outline-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="exportBooks('csv')">
+                    <i class="fas fa-file-csv me-2"></i>Export to CSV
+                </a></li>
+                <li><a class="dropdown-item" href="#" onclick="showComingSoon('Excel Export')">
+                    <i class="fas fa-file-excel me-2"></i>Export to Excel
+                </a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="showBulkActions()">
+                    <i class="fas fa-tasks me-2"></i>Bulk Actions
+                </a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count()</h4>
+                        <p class="mb-0">Total Books</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count(b => b.IsActive)</h4>
+                        <p class="mb-0">Active Books</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count(b => b.StockQuantity < 10)</h4>
+                        <p class="mb-0">Low Stock</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.Count(b => b.StockQuantity == 0)</h4>
+                        <p class="mb-0">Out of Stock</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-times-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search and Filters -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search books by title, author, or ISBN..." value="@ViewBag.SearchTerm">
+            <button class="btn btn-outline-primary" type="button" onclick="searchBooks()">
+                <i class="fas fa-search"></i> Search
+            </button>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+            {
+                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+            }
+        </div>
+    </div>
+    <div class="col-md-3">
+        <select id="categoryFilter" class="form-select" onchange="filterByCategory()">
+            <option value="">All Categories</option>
+            @if (ViewBag.Categories != null)
+            {
+                @foreach (var category in ViewBag.Categories)
+                {
+                    <option value="@category.CategoryId" selected="@(ViewBag.SelectedCategory == category.CategoryId)">
+                        @category.Name
+                    </option>
+                }
+            }
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select id="stockFilter" class="form-select" onchange="filterByStock()">
+            <option value="">All Stock Levels</option>
+            <option value="instock">In Stock</option>
+            <option value="lowstock">Low Stock (&lt; 10)</option>
+            <option value="outofstock">Out of Stock</option>
+        </select>
+    </div>
+</div>
+
+<!-- Books Table -->
+<div class="card">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2"></i>Books Inventory
+            </h5>
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <label class="form-check-label" for="selectAll">
+                    Select All
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th width="40">
+                                <input type="checkbox" id="headerCheckbox" onchange="toggleSelectAll()">
+                            </th>
+                            <th>Book Details</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th width="200">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in Model)
+                        {
+                            <tr id="book-row-@book.BookId" class="@(book.StockQuantity == 0 ? "table-danger" : book.StockQuantity < 10 ? "table-warning" : "")">
+                                <td>
+                                    <input type="checkbox" class="book-checkbox" value="@book.BookId">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="@(book.ImageUrl ?? "/images/no-image.jpg")" 
+                                             class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="@book.Title">
+                                        <div>
+                                            <h6 class="mb-1">@book.Title</h6>
+                                            <small class="text-muted">by @book.Author</small>
+                                            @if (!string.IsNullOrEmpty(@book.ISBN))
+                                            {
+                                                <br><small class="text-muted">ISBN: @book.ISBN</small>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">@book?.Category?.Name</span>
+                                </td>
+                                <td>
+                                    <strong>$@book.Price.ToString("F2")</strong>
+                                </td>
+                                <td>
+                                    @if (book.StockQuantity == 0)
+                                    {
+                                        <span class="badge bg-danger">Out of Stock</span>
+                                    }
+                                    else if (book.StockQuantity < 10)
+                                    {
+                                        <span class="badge bg-warning text-dark">@book.StockQuantity (Low)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">@book.StockQuantity</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (book.IsActive)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times-circle me-1"></i>Inactive
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <small class="text-muted">@book.CreatedDate.ToString("MMM dd, yyyy")</small>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="Details" asp-route-id="@book.BookId" 
+                                           class="btn btn-sm btn-outline-info" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@book.BookId" 
+                                           class="btn btn-sm btn-outline-primary" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-warning" 
+                                                onclick="updateStock(@book.BookId, '@book.Title')" title="Update Stock">
+                                            <i class="fas fa-boxes"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                onclick="confirmDelete(@book.BookId, '@book.Title')" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-muted mb-3"></i>
+                <h4>No books found</h4>
+                <p class="text-muted">
+                    @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+                    {
+                        <text>No books match your search criteria. Try adjusting your search terms.</text>
+                    }
+                    else
+                    {
+                        <text>Start building your inventory by adding your first book.</text>
+                    }
+                </p>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Add First Book
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Bulk Actions Panel (Hidden by default) -->
+<div id="bulkActionsPanel" class="card mt-3" style="display: none;">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0">
+            <i class="fas fa-tasks me-2"></i>Bulk Actions
+            <button type="button" class="btn-close float-end" onclick="hideBulkActions()"></button>
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <p>Selected <span id="selectedCount">0</span> books</p>
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-outline-success" onclick="bulkActivate()">
+                        <i class="fas fa-check me-1"></i> Activate
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" onclick="bulkDeactivate()">
+                        <i class="fas fa-times me-1"></i> Deactivate
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="bulkDelete()">
+                        <i class="fas fa-trash me-1"></i> Delete
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="number" id="bulkStockQuantity" class="form-control" placeholder="Stock quantity" min="0">
+                    <button type="button" class="btn btn-outline-primary" onclick="bulkUpdateStock()">
+                        <i class="fas fa-boxes me-1"></i> Update Stock
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Update Modal -->
+<div class="modal fade" id="stockUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Stock Quantity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="stockUpdateForm">
+                    <input type="hidden" id="updateBookId">
+                    <div class="mb-3">
+                        <label class="form-label">Book Title</label>
+                        <input type="text" id="updateBookTitle" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newStockQuantity" class="form-label">New Stock Quantity</label>
+                        <input type="number" id="newStockQuantity" class="form-control" min="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveStockUpdate()">Update Stock</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let selectedBooks = [];
+        
+        // Search functionality
+        function searchBooks() {
+            const searchTerm = document.getElementById('searchInput').value;
+            window.location.href = `@Url.Action("Index")?search=${encodeURIComponent(searchTerm)}`;
+        }
+        
+        function clearSearch() {
+            window.location.href = '@Url.Action("Index")';
+        }
+        
+        // Filter functionality
+        function filterByCategory() {
+            const categoryId = document.getElementById('categoryFilter').value;
+            const currentSearch = document.getElementById('searchInput').value;
+            let url = '@Url.Action("Index")';
+            let params = [];
+            
+            if (categoryId) params.push(`categoryId=${categoryId}`);
+            if (currentSearch) params.push(`search=${encodeURIComponent(currentSearch)}`);
+            
+            if (params.length > 0) url += '?' + params.join('&');
+            window.location.href = url;
+        }
+        
+        function filterByStock() {
+            const stockFilter = document.getElementById('stockFilter').value;
+            // This would need additional controller support
+            console.log('Stock filter:', stockFilter);
+        }
+        
+        // Selection functionality
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll') || document.getElementById('headerCheckbox');
+            const checkboxes = document.querySelectorAll('.book-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            
+            updateSelectedBooks();
+        }
+        
+        function updateSelectedBooks() {
+            selectedBooks = Array.from(document.querySelectorAll('.book-checkbox:checked'))
+                .map(cb => cb.value);
+            
+            document.getElementById('selectedCount').textContent = selectedBooks.length;
+            
+            if (selectedBooks.length > 0) {
+                showBulkActions();
+            } else {
+                hideBulkActions();
+            }
+        }
+        
+        // Bulk actions
+        function showBulkActions() {
+            document.getElementById('bulkActionsPanel').style.display = 'block';
+        }
+        
+        function hideBulkActions() {
+            document.getElementById('bulkActionsPanel').style.display = 'none';
+            // Uncheck all checkboxes
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            selectedBooks = [];
+        }
+        
+        function bulkActivate() {
+            if (selectedBooks.length === 0) return;
+            
+            if (confirm(`Activate ${selectedBooks.length} selected books?`)) {
+                // Implementation would go here
+                console.log('Bulk activate:', selectedBooks);
+                showComingSoon('Bulk Activate');
+            }
+        }
+        
+        function bulkDeactivate() {
+            if (selectedBooks.length === 0) return;
+            
+            if (confirm(`Deactivate ${selectedBooks.length} selected books?`)) {
+                // Implementation would go here
+                console.log('Bulk deactivate:', selectedBooks);
+                showComingSoon('Bulk Deactivate');
+            }
+        }
+        
+        function bulkDelete() {
+            if (selectedBooks.length === 0) return;
+            
+            if (confirm(`Are you sure you want to delete ${selectedBooks.length} selected books? This action cannot be undone.`)) {
+                // Implementation would go here
+                console.log('Bulk delete:', selectedBooks);
+                showComingSoon('Bulk Delete');
+            }
+        }
+        
+        function bulkUpdateStock() {
+            const quantity = document.getElementById('bulkStockQuantity').value;
+            if (selectedBooks.length === 0 || !quantity) return;
+            
+            if (confirm(`Update stock quantity to ${quantity} for ${selectedBooks.length} selected books?`)) {
+                // Implementation would go here
+                console.log('Bulk update stock:', selectedBooks, quantity);
+                showComingSoon('Bulk Stock Update');
+            }
+        }
+        
+        // Individual actions
+        function updateStock(bookId, bookTitle) {
+            document.getElementById('updateBookId').value = bookId;
+            document.getElementById('updateBookTitle').value = bookTitle;
+            document.getElementById('newStockQuantity').value = '';
+            
+            new bootstrap.Modal(document.getElementById('stockUpdateModal')).show();
+        }
+        
+        function saveStockUpdate() {
+            const bookId = document.getElementById('updateBookId').value;
+            const quantity = document.getElementById('newStockQuantity').value;
+            
+            if (!quantity || quantity < 0) {
+                alert('Please enter a valid stock quantity.');
+                return;
+            }
+            
+            // AJAX call to update stock
+            $.post('@Url.Action("UpdateStock")', { 
+                bookId: bookId, 
+                quantity: quantity 
+            }, function(data) {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('stockUpdateModal')).hide();
+                    location.reload();
+                } else {
+                    alert('Failed to update stock: ' + (data.message || 'Unknown error'));
+                }
+            }).fail(function() {
+                alert('An error occurred while updating stock.');
+            });
+        }
+        
+        function confirmDelete(bookId, bookTitle) {
+            if (confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone.`)) {
+                $.post('@Url.Action("Delete")', { id: bookId }, function(data) {
+                    if (data.success) {
+                        $('#book-row-' + bookId).fadeOut(function() {
+                            $(this).remove();
+                        });
+                        alert(data.message);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                }).fail(function() {
+                    alert('An error occurred while deleting the book.');
+                });
+            }
+        }
+        
+        function exportBooks(format) {
+            window.location.href = `@Url.Action("Export")?format=${format}`;
+        }
+        
+        function showComingSoon(feature) {
+            alert(`${feature} feature is coming soon! This will be available in a future update.`);
+        }
+        
+        // Event listeners
+        $(document).ready(function() {
+            // Add change event listeners to checkboxes
+            $(document).on('change', '.book-checkbox', updateSelectedBooks);
+            
+            // Enable search on Enter key
+            $('#searchInput').on('keypress', function(e) {
+                if (e.which === 13) {
+                    searchBooks();
+                }
+            });
+            
+            // Highlight rows on hover
+            $('tbody tr').hover(
+                function() {
+                    $(this).addClass('table-active');
+                },
+                function() {
+                    $(this).removeClass('table-active');
+                }
+            );
+        });
+    </script>
+    
+    <style>
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        
+        .table th {
+            border-top: none;
+            font-weight: 600;
+        }
+        
+        .btn-group .btn {
+            border-radius: 0;
+        }
+        
+        .btn-group .btn:first-child {
+            border-top-left-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+        
+        .btn-group .btn:last-child {
+            border-top-right-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.075);
+        }
+        
+        .badge {
+            font-size: 0.75em;
+        }
+    </style>
+}

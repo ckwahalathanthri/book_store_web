@@ -1,0 +1,185 @@
+﻿@using BookStoreEcommerce.Models.Entities 
+@model BookStoreEcommerce.Models.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalBooks</h4>
+                        <p class="mb-0">Total Books</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-book fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalCustomers</h4>
+                        <p class="mb-0">Total Customers</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-users fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>@Model.TotalOrders</h4>
+                        <p class="mb-0">Total Orders</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-shopping-cart fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>$@Model.TotalRevenue</h4>
+                        <p class="mb-0">Total Revenue</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Orders</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td>@order.OrderNumber</td>
+                                    <td>@order.Customer.User.FullName</td>
+                                    <td>$@order.TotalAmount</td>
+                                    <td>
+                                        <span class="badge bg-@(order.OrderStatus switch {
+                                            OrderStatus.Pending => "warning",
+                                            OrderStatus.Processing => "info",
+                                            OrderStatus.Shipped => "primary",
+                                            OrderStatus.Delivered => "success",
+                                            OrderStatus.Cancelled => "danger",
+                                            _ => "secondary"
+                                        })">
+                                            @order.OrderStatus
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Top Selling Books</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Sold</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (dynamic book in Model.TopSellingBooks)
+                            {
+                                <tr>
+                                    <td>@book.Title</td>
+                                    <td>@book.TotalSold</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card border-warning">
+            <div class="card-body text-center">
+                <h3 class="text-warning">@Model.LowStockBooks</h3>
+                <p>Books with Low Stock</p>
+                <a asp-controller="BookManagement" asp-action="Index" class="btn btn-outline-warning">Manage Stock</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card border-info">
+            <div class="card-body text-center">
+                <h3 class="text-info">@Model.PendingOrders</h3>
+                <p>Pending Orders</p>
+                <a asp-controller="OrderManagement" asp-action="Index" class="btn btn-outline-info">Manage Orders</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card border-primary">
+            <div class="card-body text-center">
+                <h3 class="text-primary">Quick Actions</h3>
+                <div class="d-grid gap-2">
+                    <a asp-controller="BookManagement" asp-action="Create" class="btn btn-primary btn-sm">Add New Book</a>
+                    <a asp-controller="OrderManagement" asp-action="Index" class="btn btn-outline-primary btn-sm">View All Orders</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

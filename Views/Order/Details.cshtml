@@ -1,0 +1,150 @@
+﻿@model BookStoreEcommerce.Models.Entities.Order
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Order Details</h2>
+    <a asp-action="Index" class="btn btn-outline-primary">Back to Orders</a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5>Order #@Model.OrderNumber</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+                        <p><strong>Customer:</strong> @Model.Customer.User.FullName</p>
+                        <p><strong>Email:</strong> @Model.Customer.User.Email</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> 
+                            <span class="badge bg-@(Model.OrderStatus switch {
+                                OrderStatus.Pending => "warning",
+                                OrderStatus.Processing => "info",
+                                OrderStatus.Shipped => "primary",
+                                OrderStatus.Delivered => "success",
+                                OrderStatus.Cancelled => "danger",
+                                _ => "secondary"
+                            })">
+                                @Model.OrderStatus
+                            </span>
+                        </p>
+                        <p><strong>Payment Status:</strong> 
+                            <span class="badge bg-@(Model.PaymentStatus switch {
+                                PaymentStatus.Pending => "warning",
+                                PaymentStatus.Paid => "success",
+                                PaymentStatus.Failed => "danger",
+                                PaymentStatus.Refunded => "info",
+                                _ => "secondary"
+                            })">
+                                @Model.PaymentStatus
+                            </span>
+                        </p>
+                        <p><strong>Payment Method:</strong> @Model.PaymentMethod</p>
+                    </div>
+                </div>
+                
+                <h6>Shipping Address:</h6>
+                <p>@Model.ShippingAddress</p>
+                
+                @if (Model.ShippedDate.HasValue)
+                {
+                    <p><strong>Shipped Date:</strong> @Model.ShippedDate.Value.ToString("MMM dd, yyyy")</p>
+                }
+                
+                @if (Model.DeliveredDate.HasValue)
+                {
+                    <p><strong>Delivered Date:</strong> @Model.DeliveredDate.Value.ToString("MMM dd, yyyy")</p>
+                }
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Order Items</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OrderDetails)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(item.Book.ImageUrl ?? "/images/no-image.jpg")" 
+                                                 class="me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="@item.Book.Title">
+                                            <div>
+                                                <h6 class="mb-0">@item.Book.Title</h6>
+                                                <small class="text-muted">by @item.Book.Author</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>$@item.UnitPrice</td>
+                                    <td>@item.Quantity</td>
+                                    <td>$@item.TotalPrice</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Items Total:</span>
+                    <span>$@Model.OrderDetails.Sum(od => od.TotalPrice)</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between">
+                    <strong>Total Amount:</strong>
+                    <strong>$@Model.TotalAmount</strong>
+                </div>
+                
+                @if (Model.OrderStatus == OrderStatus.Pending)
+                {
+                    <button class="btn btn-danger w-100 mt-3" onclick="cancelOrder(@Model.OrderId)">
+                        Cancel Order
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function cancelOrder(orderId) {
+            if (confirm('Are you sure you want to cancel this order?')) {
+                $.post('/Order/Cancel', { id: orderId }, function(data) {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.href = '/Order';
+                    } else {
+                        alert(data.message);
+                    }
+                });
+            }
+        }
+    </script>
+}

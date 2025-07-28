@@ -1,0 +1,482 @@
+﻿@model BookStoreEcommerce.Models.ViewModels.BookViewModel
+@{
+    ViewData["Title"] = "Add New Book";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-plus-circle me-2"></i>
+        Add New Book
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Indicator -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-info-circle fa-2x text-primary me-3"></i>
+                    <div>
+                        <h5 class="mb-1">Adding New Book to Inventory</h5>
+                        <p class="mb-0 text-muted">Fill in the book details below. Required fields are marked with an asterisk (*).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data" id="bookForm" novalidate>
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    
+    <div class="row">
+        <!-- Left Column - Basic Information -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-book me-2"></i>Basic Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-3">
+                                <label asp-for="Title" class="form-label fw-bold">
+                                    Book Title <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Title" class="form-control form-control-lg" placeholder="Enter the book title" />
+                                <span asp-validation-for="Title" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label asp-for="Language" class="form-label fw-bold">Language</label>
+                                <select asp-for="Language" class="form-select">
+                                    <option value="English">English</option>
+                                    <option value="Spanish">Spanish</option>
+                                    <option value="French">French</option>
+                                    <option value="German">German</option>
+                                    <option value="Italian">Italian</option>
+                                    <option value="Portuguese">Portuguese</option>
+                                    <option value="Chinese">Chinese</option>
+                                    <option value="Japanese">Japanese</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <span asp-validation-for="Language" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group mb-3">
+                                <label asp-for="Author" class="form-label fw-bold">
+                                    Author <span class="text-danger">*</span>
+                                </label>
+                                <input asp-for="Author" class="form-control" placeholder="Enter the author's name" />
+                                <span asp-validation-for="Author" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group mb-3">
+                                <label asp-for="CategoryId" class="form-label fw-bold">
+                                    Category <span class="text-danger">*</span>
+                                </label>
+                                <select asp-for="CategoryId" class="form-select">
+                                    <option value="">Select a category</option>
+                                    @if (ViewBag.Categories != null)
+                                    {
+                                        @foreach (var category in ViewBag.Categories)
+                                        {
+                                            <option value="@category.CategoryId">@category.Name</option>
+                                        }
+                                    }
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Description" class="form-label fw-bold">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" 
+                                  placeholder="Enter a detailed description of the book..."></textarea>
+                        <div class="form-text">
+                            <span id="descriptionCount">0</span> characters (recommended: 100-500 characters)
+                        </div>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Publication Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>Publication Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Publisher" class="form-label fw-bold">Publisher</label>
+                                <input asp-for="Publisher" class="form-control" placeholder="Enter publisher name" />
+                                <span asp-validation-for="Publisher" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="PublishedDate" class="form-label fw-bold">Publication Date</label>
+                                <input asp-for="PublishedDate" type="date" class="form-control" />
+                                <span asp-validation-for="PublishedDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="ISBN" class="form-label fw-bold">ISBN</label>
+                                <input asp-for="ISBN" class="form-control" placeholder="978-0-00-000000-0" />
+                                <div class="form-text">International Standard Book Number (optional)</div>
+                                <span asp-validation-for="ISBN" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Pages" class="form-label fw-bold">Number of Pages</label>
+                                <input asp-for="Pages" type="number" class="form-control" min="1" placeholder="e.g., 350" />
+                                <span asp-validation-for="Pages" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Pricing & Inventory -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-dollar-sign me-2"></i>Pricing & Inventory
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label asp-for="Price" class="form-label fw-bold">
+                            Price (USD) <span class="text-danger">*</span>
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Price" type="number" step="0.01" min="0.01" class="form-control" 
+                                   placeholder="0.00" />
+                        </div>
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="StockQuantity" class="form-label fw-bold">
+                            Initial Stock Quantity <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="StockQuantity" type="number" min="0" class="form-control" 
+                               placeholder="0" />
+                        <div class="form-text">Number of copies in inventory</div>
+                        <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                    </div>
+                    
+                    <!-- Stock Level Indicator -->
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Stock Level Guide:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>0 units: Out of Stock</li>
+                            <li>1-9 units: Low Stock</li>
+                            <li>10+ units: Good Stock</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Book Cover Image -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">
+                        <i class="fas fa-image me-2"></i>Book Cover Image
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label asp-for="ImageUrl" class="form-label fw-bold">Image URL</label>
+                        <input asp-for="ImageUrl" class="form-control" 
+                               placeholder="https://example.com/book-cover.jpg" />
+                        <div class="form-text">Enter a URL for the book cover image</div>
+                        <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                    </div>
+                    
+                    <!-- Image Preview -->
+                    <div class="text-center">
+                        <img id="imagePreview" src="/images/no-image.jpg" class="img-fluid rounded border" 
+                             style="max-height: 200px; max-width: 100%;" alt="Book Cover Preview">
+                        <div class="mt-2">
+                            <small class="text-muted">Image Preview</small>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="testImage()">
+                            <i class="fas fa-eye me-1"></i> Preview Image
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Create Book
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo me-2"></i>Reset Form
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-danger">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Character counter for description
+            $('#Description').on('input', function() {
+                const length = $(this).val().length;
+                $('#descriptionCount').text(length);
+                
+                // Color coding for description length
+                if (length < 100) {
+                    $('#descriptionCount').removeClass('text-success text-warning').addClass('text-muted');
+                } else if (length <= 500) {
+                    $('#descriptionCount').removeClass('text-muted text-warning').addClass('text-success');
+                } else {
+                    $('#descriptionCount').removeClass('text-muted text-success').addClass('text-warning');
+                }
+            });
+            
+            // Auto-preview image when URL changes
+            $('#ImageUrl').on('blur', function() {
+                testImage();
+            });
+            
+            // Form validation enhancements
+            $('#bookForm').on('submit', function(e) {
+                let isValid = true;
+                
+                // Custom validation
+                const price = parseFloat($('#Price').val());
+                const stock = parseInt($('#StockQuantity').val());
+                
+                if (price <= 0) {
+                    showFieldError('#Price', 'Price must be greater than 0');
+                    isValid = false;
+                }
+                
+                if (stock < 0) {
+                    showFieldError('#StockQuantity', 'Stock quantity cannot be negative');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    showAlert('Please correct the errors below.', 'danger');
+                }
+            });
+            
+            // Auto-format price input
+            $('#Price').on('blur', function() {
+                const value = parseFloat($(this).val());
+                if (!isNaN(value)) {
+                    $(this).val(value.toFixed(2));
+                }
+            });
+            
+            // ISBN formatting helper
+            $('#ISBN').on('input', function() {
+                let value = $(this).val().replace(/[^0-9X]/g, '');
+                if (value.length > 10) {
+                    // Format as ISBN-13
+                    value = value.replace(/(\d{3})(\d{1})(\d{2})(\d{6})(\d{1})/, '$1-$2-$3-$4-$5');
+                } else if (value.length === 10) {
+                    // Format as ISBN-10
+                    value = value.replace(/(\d{1})(\d{3})(\d{5})(\d{1})/, '$1-$2-$3-$4');
+                }
+                $(this).val(value);
+            });
+            
+            // Focus on first input
+            $('#Title').focus();
+        });
+        
+        function testImage() {
+            const imageUrl = $('#ImageUrl').val();
+            const preview = $('#imagePreview');
+            
+            if (imageUrl) {
+                // Test if image loads
+                const testImg = new Image();
+                testImg.onload = function() {
+                    preview.attr('src', imageUrl);
+                    showAlert('Image loaded successfully!', 'success');
+                };
+                testImg.onerror = function() {
+                    preview.attr('src', '/images/no-image.jpg');
+                    showAlert('Failed to load image. Please check the URL.', 'warning');
+                };
+                testImg.src = imageUrl;
+            } else {
+                preview.attr('src', '/images/no-image.jpg');
+            }
+        }
+        
+        function resetForm() {
+            if (confirm('Are you sure you want to reset the form? All entered data will be lost.')) {
+                document.getElementById('bookForm').reset();
+                $('#imagePreview').attr('src', '/images/no-image.jpg');
+                $('#descriptionCount').text('0');
+                $('#Title').focus();
+            }
+        }
+        
+        function showFieldError(fieldSelector, message) {
+            const field = $(fieldSelector);
+            field.addClass('is-invalid');
+            
+            // Remove existing error message
+            field.siblings('.text-danger').remove();
+            
+            // Add new error message
+            field.after(`<span class="text-danger">${message}</span>`);
+        }
+        
+        function showAlert(message, type = 'info') {
+            const alertClass = `alert-${type}`;
+            const iconClass = type === 'danger' ? 'fa-exclamation-triangle' : 
+                             type === 'success' ? 'fa-check-circle' : 'fa-info-circle';
+            
+            const alert = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    <i class="fas ${iconClass} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            
+            $('.border-bottom').after(alert);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alert.alert('close');
+            }, 5000);
+            
+            // Scroll to top to show alert
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        }
+        
+        // Auto-save draft functionality (placeholder)
+        function saveDraft() {
+            // This could save form data to localStorage for recovery
+            console.log('Draft saved...');
+        }
+        
+        // Keyboard shortcuts
+        $(document).on('keydown', function(e) {
+            // Ctrl + S to save
+            if (e.ctrlKey && e.which === 83) {
+                e.preventDefault();
+                $('#bookForm').submit();
+            }
+            // Ctrl + R to reset
+            if (e.ctrlKey && e.which === 82) {
+                e.preventDefault();
+                resetForm();
+            }
+        });
+    </script>
+    
+    <style>
+        .form-label.fw-bold {
+            color: #495057;
+        }
+        
+        .card-header {
+            font-weight: 600;
+        }
+        
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+        
+        .is-invalid {
+            border-color: #dc3545;
+        }
+        
+        .text-danger {
+            font-size: 0.875em;
+            margin-top: 0.25rem;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        #imagePreview {
+            transition: all 0.3s ease;
+        }
+        
+        #imagePreview:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .input-group-text {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+        }
+        
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        .form-text {
+            font-size: 0.875em;
+            color: #6c757d;
+        }
+    </style>
+}

@@ -1,0 +1,239 @@
+﻿@model BookStoreEcommerce.Models.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Page Header -->
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="card-title mb-0">
+                                <i class="fas fa-user-circle me-2"></i>
+                                My Profile
+                            </h3>
+                            <small class="opacity-75">Manage your personal information</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Success/Error Messages -->
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    @TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+
+            <!-- Profile Form -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <form asp-action="UpdateProfile" method="post" novalidate>
+                        <div class="row">
+                            <!-- Personal Information Section -->
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-user me-2"></i>
+                                    Personal Information
+                                </h5>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="FirstName" class="form-label">First Name</label>
+                                    <input asp-for="FirstName" class="form-control" placeholder="Enter your first name" />
+                                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="LastName" class="form-label">Last Name</label>
+                                    <input asp-for="LastName" class="form-control" placeholder="Enter your last name" />
+                                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Email" class="form-label">Email Address</label>
+                                    <input asp-for="Email" class="form-control" placeholder="Enter your email" readonly />
+                                    <div class="form-text">Email cannot be changed. Contact support if needed.</div>
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Phone" class="form-label">Phone Number</label>
+                                    <input asp-for="Phone" class="form-control" placeholder="Enter your phone number" />
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <!-- Additional Information Section -->
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Additional Information
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label asp-for="DateOfBirth" class="form-label">Date of Birth</label>
+                                    <input asp-for="DateOfBirth" class="form-control" type="date" />
+                                    <span asp-validation-for="DateOfBirth" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Gender" class="form-label">Gender</label>
+                                    <select asp-for="Gender" class="form-select" asp-items="Html.GetEnumSelectList<BookStoreEcommerce.Models.Entities.Gender>()">
+                                        <option value="">Select Gender</option>
+                                    </select>
+                                    <span asp-validation-for="Gender" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Address" class="form-label">Address</label>
+                                    <textarea asp-for="Address" class="form-control" rows="3" placeholder="Enter your full address"></textarea>
+                                    <span asp-validation-for="Address" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Change Section -->
+                        <hr class="my-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-key me-2"></i>
+                            Change Password
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="CurrentPassword" class="form-label">Current Password</label>
+                                    <input type="password" name="CurrentPassword" class="form-control" placeholder="Enter current password" />
+                                    <div class="form-text">Leave blank if you don't want to change password</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Password" class="form-label">New Password</label>
+                                    <input asp-for="Password" class="form-control" placeholder="Enter new password" />
+                                    <span asp-validation-for="Password" class="text-danger small"></span>
+                                </div>
+                                <div class="mb-3">
+                                    <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
+                                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm new password" />
+                                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-save me-2"></i>
+                                            Update Profile
+                                        </button>
+                                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">
+                                            <i class="fas fa-times me-2"></i>
+                                            Cancel
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a asp-controller="Order" asp-action="Index" class="btn btn-outline-info">
+                                            <i class="fas fa-shopping-bag me-2"></i>
+                                            View My Orders
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="text-primary mb-2">
+                                <i class="fas fa-shopping-cart fa-2x"></i>
+                            </div>
+                            <h6 class="card-title">Total Orders</h6>
+                            <h4 class="text-primary">@(ViewBag.TotalOrders ?? 0)</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="text-success mb-2">
+                                <i class="fas fa-dollar-sign fa-2x"></i>
+                            </div>
+                            <h6 class="card-title">Total Spent</h6>
+                            <h4 class="text-success">$@(ViewBag.TotalSpent?.ToString("F2") ?? "0.00")</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body text-center">
+                            <div class="text-info mb-2">
+                                <i class="fas fa-calendar fa-2x"></i>
+                            </div>
+                            <h6 class="card-title">Member Since</h6>
+                            <h6 class="text-info">@(ViewBag.MemberSince?.ToString("MMM yyyy") ?? "N/A")</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        $(document).ready(function() {
+            // Auto-dismiss alerts after 5 seconds
+            setTimeout(function() {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // Password validation
+            $('#Password, #ConfirmPassword').on('keyup', function() {
+                var password = $('#Password').val();
+                var confirmPassword = $('#ConfirmPassword').val();
+                
+                if (password !== confirmPassword && confirmPassword !== '') {
+                    $('#ConfirmPassword').addClass('is-invalid');
+                } else {
+                    $('#ConfirmPassword').removeClass('is-invalid');
+                }
+            });
+
+            // Phone number formatting
+            $('#Phone').on('input', function() {
+                var value = $(this).val().replace(/\D/g, '');
+                var formattedValue = value.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3');
+                if (value.length <= 10) {
+                    $(this).val(formattedValue);
+                }
+            });
+        });
+    </script>
+}

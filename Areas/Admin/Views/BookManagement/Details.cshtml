@@ -1,0 +1,753 @@
+﻿@model BookStoreEcommerce.Models.Entities.Book
+@{
+    ViewData["Title"] = $"Book Details - {Model.Title}";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-book-open me-2"></i>
+        Book Details
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i> Edit Book
+            </a>
+            <button type="button" class="btn btn-warning" onclick="updateStock(@Model.BookId, '@Model.Title', @Model.StockQuantity)">
+                <i class="fas fa-boxes me-1"></i> Update Stock
+            </button>
+            <button type="button" class="btn btn-danger" onclick="confirmDelete(@Model.BookId, '@Model.Title')">
+                <i class="fas fa-trash me-1"></i> Delete
+            </button>
+        </div>
+        <div class="btn-group">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Book Status Alert -->
+<div class="row mb-4">
+    <div class="col-12">
+        @if (Model.StockQuantity == 0)
+        {
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Out of Stock!</strong> This book is currently unavailable for purchase.
+            </div>
+        }
+        else if (Model.StockQuantity < 10)
+        {
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Low Stock Warning!</strong> Only @Model.StockQuantity units remaining.
+            </div>
+        }
+        
+        @if (!Model.IsActive)
+        {
+            <div class="alert alert-secondary" role="alert">
+                <i class="fas fa-pause-circle me-2"></i>
+                <strong>Inactive Book:</strong> This book is currently hidden from customers.
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <!-- Left Column - Book Information -->
+    <div class="col-lg-8">
+        <!-- Basic Information Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>Book Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <img src="@(Model.ImageUrl ?? "/images/no-image.jpg")" 
+                             class="img-fluid rounded shadow-sm mb-3" 
+                             style="max-height: 300px; max-width: 100%;" 
+                             alt="@Model.Title">
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="changeImage()">
+                                <i class="fas fa-camera me-1"></i> Change Image
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <dl class="row">
+                            <dt class="col-sm-4">Title:</dt>
+                            <dd class="col-sm-8">
+                                <h4 class="text-primary mb-0">@Model.Title</h4>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Author:</dt>
+                            <dd class="col-sm-8">
+                                <h5 class="text-muted mb-0">@Model.Author</h5>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Category:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-secondary">@Model.Category.Name</span>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Price:</dt>
+                            <dd class="col-sm-8">
+                                <h4 class="text-success mb-0">$@Model.Price.ToString("F2")</h4>
+                            </dd>
+                            
+                            <dt class="col-sm-4">Stock Status:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.StockQuantity == 0)
+                                {
+                                    <span class="badge bg-danger fs-6">Out of Stock</span>
+                                }
+                                else if (Model.StockQuantity < 10)
+                                {
+                                    <span class="badge bg-warning text-dark fs-6">@Model.StockQuantity units (Low Stock)</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success fs-6">@Model.StockQuantity units (In Stock)</span>
+                                }
+                            </dd>
+                            
+                            <dt class="col-sm-4">Language:</dt>
+                            <dd class="col-sm-8">@Model.Language</dd>
+                            
+                            <dt class="col-sm-4">Status:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>Active
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-pause-circle me-1"></i>Inactive
+                                    </span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <hr>
+                    <h6 class="text-muted">Description:</h6>
+                    <p class="text-justify">@Model.Description</p>
+                }
+            </div>
+        </div>
+        
+        <!-- Publication Details Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>Publication Details
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">Publisher:</dt>
+                            <dd class="col-sm-7">@(Model.Publisher ?? "Not specified")</dd>
+                            
+                            <dt class="col-sm-5">Published Date:</dt>
+                            <dd class="col-sm-7">
+                                @if (Model.PublishedDate.HasValue)
+                                {
+                                    @Model.PublishedDate.Value.ToString("MMM dd, yyyy")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not specified</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="col-md-6">
+                        <dl class="row">
+                            <dt class="col-sm-5">ISBN:</dt>
+                            <dd class="col-sm-7">
+                                @if (!string.IsNullOrEmpty(Model.ISBN))
+                                {
+                                    <code>@Model.ISBN</code>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not specified</span>
+                                }
+                            </dd>
+                            
+                            <dt class="col-sm-5">Pages:</dt>
+                            <dd class="col-sm-7">
+                                @if (Model.Pages.HasValue)
+                                {
+                                    @Model.Pages.Value.ToString("N0")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Not specified</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Customer Reviews Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">
+                    <i class="fas fa-star me-2"></i>Customer Reviews
+                    <span class="badge bg-dark ms-2">@Model.Feedbacks.Count(f => f.IsApproved)</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Feedbacks.Any(f => f.IsApproved))
+                {
+                    <!-- Rating Summary -->                  
+                        var approvedFeedbacks = Model.Feedbacks.Where(f => f.IsApproved).ToList();
+                        var averageRating = approvedFeedbacks.Average(f => f.Rating);
+                        var ratingCounts = approvedFeedbacks.GroupBy(f => f.Rating).ToDictionary(g => g.Key, g => g.Count());
+                                      
+                    <div class="row mb-4">
+                        <div class="col-md-3 text-center">
+                            <h2 class="text-warning mb-0">@averageRating.ToString("F1")</h2>
+                            <div class="mb-1">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <span class="@(i <= averageRating ? "text-warning" : "text-muted")">★</span>
+                                }
+                            </div>
+                            <small class="text-muted">@approvedFeedbacks.Count reviews</small>
+                        </div>
+                        <div class="col-md-9">
+                            @for (int rating = 5; rating >= 1; rating--)
+                            {
+                                var count = ratingCounts.ContainsKey(rating) ? ratingCounts[rating] : 0;
+                                var percentage = approvedFeedbacks.Count > 0 ? (count * 100.0 / approvedFeedbacks.Count) : 0;
+                                
+                                <div class="row align-items-center mb-1">
+                                    <div class="col-2">
+                                        <small>@rating ★</small>
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: @percentage%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <small class="text-muted">@count</small>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Reviews -->
+                    <h6 class="mb-3">Recent Reviews:</h6>
+                    <div class="review-list" style="max-height: 400px; overflow-y: auto;">
+                        @foreach (var feedback in approvedFeedbacks.OrderByDescending(f => f.CreatedDate).Take(5))
+                        {
+                            <div class="border rounded p-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <strong>@feedback.Customer.User.FullName</strong>
+                                        <div class="mb-1">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <span class="@(i <= feedback.Rating ? "text-warning" : "text-muted")">★</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">@feedback.CreatedDate.ToString("MMM dd, yyyy")</small>
+                                </div>
+                                @if (!string.IsNullOrEmpty(feedback.Comment))
+                                {
+                                    <p class="mb-0 mt-2">@feedback.Comment</p>
+                                }
+                            </div>
+                        }
+                    </div>
+                    
+                    @if (approvedFeedbacks.Count > 5)
+                    {
+                        <div class="text-center mt-3">
+                            <button type="button" class="btn btn-outline-primary" onclick="showAllReviews()">
+                                <i class="fas fa-eye me-1"></i> View All @approvedFeedbacks.Count Reviews
+                            </button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-center py-4">
+                        <i class="fas fa-star fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No reviews yet</h5>
+                        <p class="text-muted">This book hasn't received any customer reviews.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column - Statistics & Actions -->
+    <div class="col-lg-4">
+        <!-- Quick Actions Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model.BookId" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>Edit Book Details
+                    </a>
+                    <button type="button" class="btn btn-warning" onclick="updateStock(@Model.BookId, '@Model.Title', @Model.StockQuantity)">
+                        <i class="fas fa-boxes me-2"></i>Update Stock
+                    </button>
+                    <button type="button" class="btn btn-info" onclick="toggleStatus(@Model.BookId, @Model.IsActive.ToString().ToLower())">
+                        <i class="fas fa-@(Model.IsActive ? "pause" : "play") me-2"></i>
+                        @(Model.IsActive ? "Deactivate" : "Activate") Book
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="duplicateBook(@Model.BookId)">
+                        <i class="fas fa-copy me-2"></i>Duplicate Book
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Book Statistics Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Book Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-shopping-cart fa-2x text-primary mb-2"></i>
+                            <h4 class="mb-0">@Model.OrderDetails.Sum(od => od.Quantity)</h4>
+                            <small class="text-muted">Total Sold</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-dollar-sign fa-2x text-success mb-2"></i>
+                            <h4 class="mb-0">$@Model.OrderDetails.Sum(od => od.TotalPrice).ToString("F0")</h4>
+                            <small class="text-muted">Revenue</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-star fa-2x text-warning mb-2"></i>
+                            <h4 class="mb-0">
+                                @if (Model.Feedbacks.Any(f => f.IsApproved))
+                                {
+                                    @Model.Feedbacks.Where(f => f.IsApproved).Average(f => f.Rating).ToString("F1")
+                                }
+                                else
+                                {
+                                    <span class="text-muted">N/A</span>
+                                }
+                            </h4>
+                            <small class="text-muted">Avg Rating</small>
+                        </div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="border rounded p-3">
+                            <i class="fas fa-eye fa-2x text-info mb-2"></i>
+                            <h4 class="mb-0">@Model.Feedbacks.Count(f => f.IsApproved)</h4>
+                            <small class="text-muted">Reviews</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- System Information Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>System Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <dl class="row small">
+                    <dt class="col-sm-6">Book ID:</dt>
+                    <dd class="col-sm-6">#@Model.BookId</dd>
+                    
+                    <dt class="col-sm-6">Created:</dt>
+                    <dd class="col-sm-6">@Model.CreatedDate.ToString("MMM dd, yyyy")</dd>
+                    
+                    <dt class="col-sm-6">Last Updated:</dt>
+                    <dd class="col-sm-6">@Model.UpdatedDate.ToString("MMM dd, yyyy")</dd>
+                    
+                    <dt class="col-sm-6">Category ID:</dt>
+                    <dd class="col-sm-6">#@Model.CategoryId</dd>
+                </dl>
+            </div>
+        </div>
+        
+        <!-- Danger Zone Card -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Danger Zone
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <small>Permanently delete this book and all its associated data. This action cannot be undone.</small>
+                </p>
+                <button type="button" class="btn btn-outline-danger w-100" onclick="confirmDelete(@Model.BookId, '@Model.Title')">
+                    <i class="fas fa-trash me-2"></i>Delete Book
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stock Update Modal -->
+<div class="modal fade" id="stockUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Stock Quantity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="stockUpdateForm">
+                    <input type="hidden" id="updateBookId">
+                    <div class="mb-3">
+                        <label class="form-label">Book Title</label>
+                        <input type="text" id="updateBookTitle" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Current Stock</label>
+                        <input type="text" id="currentStock" class="form-control" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="newStockQuantity" class="form-label">New Stock Quantity</label>
+                        <input type="number" id="newStockQuantity" class="form-control" min="0" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stockUpdateReason" class="form-label">Reason (Optional)</label>
+                        <textarea id="stockUpdateReason" class="form-control" rows="2" placeholder="Enter reason for stock update..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveStockUpdate()">Update Stock</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Update Modal -->
+<div class="modal fade" id="imageUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Book Cover</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="imageUpdateForm">
+                    <div class="mb-3">
+                        <label for="newImageUrl" class="form-label">New Image URL</label>
+                        <input type="url" id="newImageUrl" class="form-control" placeholder="https://example.com/book-cover.jpg">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preview</label>
+                        <div class="text-center">
+                            <img id="newImagePreview" src="@(Model.ImageUrl ?? "/images/no-image.jpg")" 
+                                 class="img-fluid rounded" style="max-height: 200px;" alt="Preview">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="testImage()">Test Image</button>
+                <button type="button" class="btn btn-success" onclick="saveImageUpdate()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Stock update functionality
+        function updateStock(bookId, bookTitle, currentStock) {
+            document.getElementById('updateBookId').value = bookId;
+            document.getElementById('updateBookTitle').value = bookTitle;
+            document.getElementById('currentStock').value = currentStock + ' units';
+            document.getElementById('newStockQuantity').value = currentStock;
+            document.getElementById('stockUpdateReason').value = '';
+            
+            new bootstrap.Modal(document.getElementById('stockUpdateModal')).show();
+        }
+        
+        function saveStockUpdate() {
+            const bookId = document.getElementById('updateBookId').value;
+            const quantity = document.getElementById('newStockQuantity').value;
+            const reason = document.getElementById('stockUpdateReason').value;
+            
+            if (!quantity || quantity < 0) {
+                alert('Please enter a valid stock quantity.');
+                return;
+            }
+            
+            $.post('@Url.Action("UpdateStock", "BookManagement")', { 
+                bookId: bookId, 
+                quantity: quantity,
+                reason: reason
+            }, function(data) {
+                if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('stockUpdateModal')).hide();
+                    showAlert('Stock updated successfully!', 'success');
+                    location.reload();
+                } else {
+                    showAlert('Failed to update stock: ' + (data.message || 'Unknown error'), 'danger');
+                }
+            }).fail(function() {
+                showAlert('An error occurred while updating stock.', 'danger');
+            });
+        }
+        
+        // Image update functionality
+        function changeImage() {
+            document.getElementById('newImageUrl').value = '@Model.ImageUrl';
+            new bootstrap.Modal(document.getElementById('imageUpdateModal')).show();
+        }
+        
+        function testImage() {
+            const imageUrl = document.getElementById('newImageUrl').value;
+            const preview = document.getElementById('newImagePreview');
+            
+            if (imageUrl) {
+                const testImg = new Image();
+                testImg.onload = function() {
+                    preview.src = imageUrl;
+                    showAlert('Image loaded successfully!', 'success');
+                };
+                testImg.onerror = function() {
+                    showAlert('Failed to load image. Please check the URL.', 'warning');
+                };
+                testImg.src = imageUrl;
+            } else {
+                preview.src = '/images/no-image.jpg';
+            }
+        }
+        
+        function saveImageUpdate() {
+            const imageUrl = document.getElementById('newImageUrl').value;
+            
+            // This would typically make an AJAX call to update the image
+            showAlert('Image update functionality coming soon!', 'info');
+        }
+        
+        // Book status toggle
+        function toggleStatus(bookId, isCurrentlyActive) {
+            const action = isCurrentlyActive ? 'deactivate' : 'activate';
+            const message = `Are you sure you want to ${action} this book?`;
+            
+            if (confirm(message)) {
+                $.post('@Url.Action("ToggleStatus", "BookManagement")', { id: bookId }, function(data) {
+                    if (data.success) {
+                        showAlert(data.message, 'success');
+                        location.reload();
+                    } else {
+                        showAlert('Error: ' + data.message, 'danger');
+                    }
+                }).fail(function() {
+                    showAlert('An error occurred while updating book status.', 'danger');
+                });
+            }
+        }
+        
+        // Delete confirmation
+        function confirmDelete(bookId, bookTitle) {
+            if (confirm(`Are you sure you want to delete "${bookTitle}"? This action cannot be undone and will remove all associated data including orders and reviews.`)) {
+                $.post('@Url.Action("Delete", "BookManagement")', { id: bookId }, function(data) {
+                    if (data.success) {
+                        showAlert('Book deleted successfully!', 'success');
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Index", "BookManagement")';
+                        }, 2000);
+                    } else {
+                        showAlert('Error: ' + data.message, 'danger');
+                    }
+                }).fail(function() {
+                    showAlert('An error occurred while deleting the book.', 'danger');
+                });
+            }
+        }
+        
+        // Duplicate book
+        function duplicateBook(bookId) {
+            if (confirm('Create a copy of this book?')) {
+                showAlert('Book duplication feature coming soon!', 'info');
+            }
+        }
+        
+        // Show all reviews
+        function showAllReviews() {
+            showAlert('Full reviews view coming soon!', 'info');
+        }
+        
+        // Alert helper function
+        function showAlert(message, type = 'info') {
+            const alertClass = `alert-${type}`;
+            const iconClass = type === 'danger' ? 'fa-exclamation-triangle' : 
+                             type === 'success' ? 'fa-check-circle' : 
+                             type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+            
+            const alert = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    <i class="fas ${iconClass} me-2"></i>
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `);
+            
+            $('.border-bottom').after(alert);
+            
+            // Auto dismiss after 5 seconds
+            setTimeout(() => {
+                alert.alert('close');
+            }, 5000);
+            
+            // Scroll to top to show alert
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        }
+        
+        // Initialize tooltips
+        $(document).ready(function() {
+            $('[data-bs-toggle="tooltip"]').tooltip();
+            
+            // Auto-update image preview when URL changes
+            $('#newImageUrl').on('input', function() {
+                const imageUrl = $(this).val();
+                if (imageUrl) {
+                    $('#newImagePreview').attr('src', imageUrl);
+                }
+            });
+        });
+    </script>
+    
+    <style>
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        .card-header {
+            font-weight: 600;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+        }
+        
+        .review-list {
+            scrollbar-width: thin;
+            scrollbar-color: #6c757d transparent;
+        }
+        
+        .review-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .review-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .review-list::-webkit-scrollbar-thumb {
+            background-color: #6c757d;
+            border-radius: 3px;
+        }
+        
+        .progress {
+            background-color: #e9ecef;
+        }
+        
+        .badge {
+            font-size: 0.875em;
+        }
+        
+        .fs-6 {
+            font-size: 1rem !important;
+        }
+        
+        .text-justify {
+            text-align: justify;
+        }
+        
+        .border-danger {
+            border-color: #dc3545 !important;
+        }
+        
+        .btn-group .btn {
+            border-radius: 0;
+        }
+        
+        .btn-group .btn:first-child {
+            border-top-left-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+        
+        .btn-group .btn:last-child {
+            border-top-right-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+        }
+        
+        .img-fluid {
+            transition: transform 0.3s ease;
+        }
+        
+        .img-fluid:hover {
+            transform: scale(1.05);
+        }
+        
+        dt {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        dd {
+            margin-bottom: 0.5rem;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 0.5rem;
+        }
+        
+        .modal-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .modal-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+        }
+    </style>
+}

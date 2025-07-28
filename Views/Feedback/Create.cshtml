@@ -1,0 +1,75 @@
+﻿@model BookStoreEcommerce.Models.ViewModels.FeedbackViewModel
+@{
+    ViewData["Title"] = "Write Review";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4>Write a Review for "@Model.BookTitle"</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <input type="hidden" asp-for="BookId" />
+                    <input type="hidden" asp-for="CustomerId" />
+                    
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Rating" class="form-label">Rating</label>
+                        <div class="rating-input">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <input type="radio" asp-for="Rating" value="@i" id="rating@(i)" />
+                                <label for="rating@(i)" class="star">★</label>
+                            }
+                        </div>
+                        <span asp-validation-for="Rating" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label asp-for="Comment" class="form-label">Comment (Optional)</label>
+                        <textarea asp-for="Comment" class="form-control" rows="4" 
+                                  placeholder="Share your thoughts about this book..."></textarea>
+                        <span asp-validation-for="Comment" class="text-danger"></span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a asp-controller="Book" asp-action="Details" asp-route-id="@Model.BookId" 
+                           class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <style>
+        .rating-input {
+            direction: rtl;
+            display: inline-block;
+        }
+        
+        .rating-input input[type="radio"] {
+            display: none;
+        }
+        
+        .rating-input label.star {
+            color: #ddd;
+            font-size: 2em;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .rating-input input[type="radio"]:checked ~ label.star,
+        .rating-input label.star:hover,
+        .rating-input label.star:hover ~ label.star {
+            color: #ffc107;
+        }
+    </style>
+}
